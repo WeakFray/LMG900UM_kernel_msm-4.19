@@ -1,3 +1,39 @@
+Kernel Build Instructions
+
+1. Prepare folder
+  - We'll create two folders: one for the kernel, and one for the prebuilt toolchains.
+  - You can choose where to keep both folders, but make sure they are in the same location.
+  - For these instructions, we'll keep both folders in a folder called "LMG900UM_Kernel_T".
+    $ mkdir LMG900UM_Kernel_T
+    $ cd LMG900UM_Kernel_T
+
+  - The prebuilts directory will be created in step 2 and the kernel directory will be created in step 3.
+
+2. Get toolchains
+  - Before compiling the kernel source, you need to get the required toolchains from the AOSP platform.
+  - We only need the prebuilt toolchains, not the entire platform. Run these commands:
+    $ repo init -u https://android.googlesource.com/platform/manifest -b android-11.0.0_r35
+    $ repo sync -c --no-tags prebuilts/clang/host/linux-x86
+    $ repo sync -c --no-tags prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
+    $ repo sync -c --no-tags prebuilts/misc
+
+3. Get kernel
+  - Clone the kernel source.
+    $ git clone https://github.com/WeakFray/LMG900UM_kernel_msm-4.19 msm-4.19
+
+4. Build kernel
+  - Make sure Python 2.17 is installed and the default Python interpreter before proceeding.
+  - Run these commands to build the kernel:
+    $ cd msm-4.19
+    $ mkdir -p out
+    $ echo CONFIG_BUILD_ARM64_DT_OVERLAY=y >> arch/arm64/configs/vendor/caymanlm-perf_defconfig
+    $ make ARCH=arm64 O=./out REAL_CC=../../prebuilts/clang/host/linux-x86/clang-r353983c/bin/clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=../../prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android- DTC_EXT=../../prebuilts/misc/linux-x86/dtc/dtc vendor/caymanlm-perf_defconfig
+    $ make ARCH=arm64 O=./out REAL_CC=../../prebuilts/clang/host/linux-x86/clang-r353983c/bin/clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=../../prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android- DTC_EXT=../../prebuilts/misc/linux-x86/dtc/dtc -j$(nproc)
+
+  - If the kernel builds successfully, you can find the built image at out/arch/arm64/boot.
+
+=== ORIGINAL README CONTENTS BELOW ===
+
 Linux kernel
 ============
 
